@@ -1,0 +1,14 @@
+{
+    "display_name": "Character Folders",
+    "loading_order": 120,
+    "requires": [],
+    "optional": [],
+    "js": "index.js",
+    "css": "style.css",
+    "author": "Character Folders contributors",
+    "version": "0.5.0",
+    "homePage": "",
+    "hooks": {
+        "activate": "init"
+    }
+}

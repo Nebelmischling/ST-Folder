@@ -1,0 +1,18 @@
+# Normalise line endings so the repo works on Windows, Linux and in WSL/Git-Bash alike.
+# The shell tools in tools/ MUST stay LF-only, otherwise bash fails with "bad interpreter".
+* text=auto
+
+*.sh    text eol=lf
+*.mjs   text eol=lf
+*.js    text eol=lf
+*.json  text eol=lf
+*.css   text eol=lf
+*.html  text eol=lf
+*.md    text eol=lf
+
+# PowerShell is happiest with CRLF on Windows
+*.ps1   text eol=crlf
+
+# Binary assets must never be touched
+*.png   binary
+*.ico   binary

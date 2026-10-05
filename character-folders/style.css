@@ -1,0 +1,375 @@
+/**
+ * Character Folders — styles for the folder panel inside Character Management.
+ *
+ * Only classes prefixed with `cf-` (and the appended `.cf-card-grip`) are styled,
+ * so nothing in the core UI is changed visually.
+ */
+
+.cf-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 0 0 auto;
+    margin: 4px 0 6px;
+    padding: 4px 4px 6px;
+    border: 1px solid var(--SmartThemeBorderColor);
+    border-radius: 6px;
+    background-color: var(--SmartThemeBlurTintColor);
+    font-size: 0.95em;
+}
+
+.cf-panel .cf-header {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.cf-panel .cf-title {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cf-panel .cf-spacer {
+    flex: 1;
+}
+
+.cf-panel.cf-collapsed .cf-breadcrumb,
+.cf-panel.cf-collapsed .cf-tree {
+    display: none;
+}
+
+/* Breadcrumb of the currently opened folder */
+
+.cf-panel .cf-breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 4px;
+    color: var(--SmartThemeEmColor);
+    font-size: 0.9em;
+}
+
+.cf-panel .cf-breadcrumb.cf-hidden {
+    display: none;
+}
+
+.cf-panel .cf-crumb {
+    cursor: pointer;
+}
+
+.cf-panel .cf-crumb:hover {
+    text-decoration: underline;
+}
+
+.cf-panel .cf-crumb-sep {
+    opacity: 0.5;
+    font-size: 0.8em;
+}
+
+/* Folder tree */
+
+.cf-panel .cf-tree {
+    display: flex;
+    flex-direction: column;
+    max-height: 32vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.cf-panel .cf-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 4px 2px calc(4px + var(--cf-depth, 0) * 12px);
+    border-radius: 4px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.cf-panel .cf-row:hover {
+    background-color: var(--white20a);
+}
+
+.cf-panel .cf-row.cf-open {
+    background-color: var(--white30a);
+    font-weight: 600;
+}
+
+.cf-panel .cf-row.cf-drop-hover {
+    outline: 2px dashed var(--SmartThemeQuoteColor);
+    outline-offset: -2px;
+}
+
+.cf-panel .cf-row.cf-dragging {
+    opacity: 0.5;
+}
+
+.cf-panel .cf-twisty {
+    width: 12px;
+    flex: 0 0 12px;
+    text-align: center;
+    font-size: 0.75em;
+    opacity: 0.7;
+}
+
+.cf-panel .cf-twisty-empty {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.cf-panel .cf-folder-icon {
+    width: 16px;
+    flex: 0 0 16px;
+    text-align: center;
+    color: var(--SmartThemeQuoteColor);
+}
+
+.cf-panel .cf-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cf-panel .cf-name-input {
+    flex: 1;
+    min-width: 0;
+    height: auto;
+    padding: 1px 4px;
+}
+
+.cf-panel .cf-count {
+    flex: 0 0 auto;
+    min-width: 1.6em;
+    text-align: right;
+    font-size: 0.85em;
+    opacity: 0.65;
+}
+
+.cf-panel .cf-row-menu {
+    flex: 0 0 auto;
+    padding: 0 2px;
+    opacity: 0;
+    transition: opacity var(--animation-duration, 125ms) ease;
+}
+
+.cf-panel .cf-row:hover .cf-row-menu,
+.cf-panel .cf-row:focus-within .cf-row-menu {
+    opacity: 0.7;
+}
+
+.cf-panel .cf-row .cf-row-menu:hover {
+    opacity: 1;
+}
+
+/* Drag helpers */
+
+.cf-drag-helper {
+    padding: 4px;
+    border: 1px solid var(--SmartThemeBorderColor);
+    border-radius: 6px;
+    background-color: var(--SmartThemeBlurTintColor);
+    box-shadow: 0 0 8px var(--black50a);
+    pointer-events: none;
+}
+
+/* Selection bar shown while characters are selected */
+
+.cf-panel .cf-selection {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    margin: 2px 0;
+    padding: 4px;
+    border: 1px solid var(--SmartThemeQuoteColor);
+    border-radius: 5px;
+    background-color: var(--black30a);
+}
+
+.cf-panel .cf-selection.cf-hidden {
+    display: none;
+}
+
+.cf-panel .cf-selection .cf-sel-count {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.cf-panel .cf-selection .cf-sel-hint {
+    flex: 1 1 100%;
+    opacity: 0.75;
+    font-size: 0.85em;
+}
+
+.cf-panel .cf-selection .menu_button {
+    height: auto;
+    padding: 2px 6px;
+    font-size: 0.9em;
+}
+
+/* Folder rows become drop targets while a selection is active */
+
+.cf-panel .cf-row.cf-movetarget {
+    cursor: copy;
+    outline: 1px dashed var(--SmartThemeQuoteColor);
+    outline-offset: -2px;
+}
+
+.cf-panel .cf-row.cf-movetarget:hover {
+    background-color: var(--white30a);
+}
+
+.cf-panel .cf-move-hint {
+    flex: 0 0 auto;
+    padding: 0 4px;
+    border-radius: 8px;
+    background-color: var(--SmartThemeQuoteColor);
+    color: var(--SmartThemeBodyColor);
+    font-size: 0.75em;
+    font-weight: 600;
+}
+
+/* Folder picker popup */
+
+.cf-pick-popup {
+    text-align: left;
+}
+
+.cf-pick-popup .cf-pick-list {
+    display: flex;
+    flex-direction: column;
+    max-height: 45vh;
+    overflow-y: auto;
+}
+
+.cf-pick-popup .cf-pick-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 4px 3px calc(4px + var(--cf-depth, 0) * 14px);
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.cf-pick-popup .cf-pick-row:hover {
+    background-color: var(--white20a);
+}
+
+.cf-pick-popup .cf-pick-row .cf-count {
+    margin-left: auto;
+    opacity: 0.65;
+    font-size: 0.85em;
+}
+
+/* Selection checkbox on character cards (also the drag handle) */
+
+#rm_print_characters_block .character_select {
+    position: relative;
+}
+
+#rm_print_characters_block .character_select .cf-card-select {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 17px;
+    height: 17px;
+    margin-left: auto;
+    border: 1px solid var(--SmartThemeBorderColor);
+    border-radius: 4px;
+    background-color: var(--black30a);
+    cursor: pointer;
+    font-size: 0.7em;
+    transition: opacity var(--animation-duration, 125ms) ease, background-color var(--animation-duration, 125ms) ease;
+}
+
+#rm_print_characters_block .character_select .cf-card-select i {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#rm_print_characters_block .character_select .cf-card-select:hover {
+    background-color: var(--white30a);
+}
+
+#rm_print_characters_block .character_select .cf-card-select.cf-on {
+    background-color: var(--SmartThemeQuoteColor);
+    border-color: var(--SmartThemeQuoteColor);
+}
+
+#rm_print_characters_block .character_select .cf-card-select.cf-on i {
+    opacity: 1;
+}
+
+#rm_print_characters_block .character_select.cf-selected {
+    outline: 2px solid var(--SmartThemeQuoteColor);
+    outline-offset: -2px;
+}
+
+#rm_print_characters_block .character_select.cf-dragging {
+    opacity: 0.5;
+}
+
+.cf-drag-helper .cf-drag-count {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    padding: 1px 6px;
+    border-radius: 10px;
+    background-color: var(--SmartThemeQuoteColor);
+    color: var(--SmartThemeBodyColor);
+    font-size: 0.75em;
+    font-weight: 700;
+}
+
+/* Options popup */
+
+.cf-options-popup {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-align: left;
+}
+
+.cf-options-popup .cf-option-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.cf-options-popup .cf-hint {
+    opacity: 0.75;
+}
+
+.cf-color-popup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+}
+
+.cf-danger {
+    color: #e05a5a;
+}
+
+/* Touch devices have no hover state, so keep the affordances visible. */
+
+@media (hover: none) {
+    .cf-panel .cf-row-menu {
+        opacity: 0.6;
+    }
+
+    #rm_print_characters_block .character_select .cf-card-select {
+        width: 20px;
+        height: 20px;
+        opacity: 1;
+    }
+}

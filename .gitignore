@@ -1,0 +1,14 @@
+# Third-party SillyTavern checkout used for development and for the browser harness.
+# Never committed: the harness only needs it at runtime for jQuery / jQuery UI / Font Awesome.
+SillyTavern-release/
+SillyTavern/
+
+# Node
+node_modules/
+npm-debug.log*
+*.log
+
+# OS noise
+.DS_Store
+Thumbs.db
+desktop.ini
