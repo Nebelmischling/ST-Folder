@@ -6,7 +6,7 @@
     "js": "index.js",
     "css": "style.css",
     "author": "Character Folders contributors",
-    "version": "0.5.0",
+    "version": "0.5.1",
     "homePage": "",
     "hooks": {
         "activate": "init"

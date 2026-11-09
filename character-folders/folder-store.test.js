@@ -27,6 +27,7 @@ import {
     isCharacterInFolder,
     pruneAssignments,
     renameCharacterAvatar,
+    copyCharacterAssignment,
     getChildren,
     getFolderPath,
     getDescendantIds,
@@ -322,4 +323,17 @@ test('describeTree renders indented names with counts', () => {
     const { state, elves } = fixture();
     assignCharacter(state, 'aria.png', elves.id);
     assert.equal(describeTree(state), 'Fantasy (0)\n    Elves (1)\nSciFi (0)');
+});
+
+test('copyCharacterAssignment copies without moving the original', () => {
+    const { state, fantasy } = fixture();
+    assignCharacter(state, 'aria.png', fantasy.id);
+
+    assert.equal(copyCharacterAssignment(state, 'aria.png', 'aria_copy.png'), true);
+    assert.equal(getCharacterFolderId(state, 'aria.png'), fantasy.id, 'the original keeps its folder');
+    assert.equal(getCharacterFolderId(state, 'aria_copy.png'), fantasy.id, 'the copy inherits the folder');
+
+    assert.equal(copyCharacterAssignment(state, 'aria.png', 'aria.png'), false, 'same avatar is a no-op');
+    assert.equal(copyCharacterAssignment(state, 'missing.png', 'x.png'), false, 'unknown source copies nothing');
+    assert.equal(getCharacterFolderId(state, 'x.png'), null);
 });

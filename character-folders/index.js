@@ -9,7 +9,7 @@
  * - No core file is modified. The extension only injects DOM into the character
  *   panel and registers one extra predicate in `entitiesFilter.filterFunctions`,
  *   which is how the built-in filter chain is extended without patching it.
- * - All folder data lives in `extension_settings.character_folders`, so it is
+ * - All folder data lives in `extension_settings['character-folders']`, so it is
  *   stored in the user's `settings.json` and part of every settings backup.
  * - All folder rules live in `folder-store.js` (pure, unit tested).
  */
@@ -25,6 +25,7 @@ import { escapeHtml } from '../../../utils.js';
 import { t } from '../../../i18n.js';
 
 import {
+    MAX_NAME_LENGTH,
     createEmptyState,
     normalizeState,
     createFolder,
@@ -34,6 +35,7 @@ import {
     deleteFolder,
     moveFolder,
     assignCharacter,
+    copyCharacterAssignment,
     getCharacterFolderId,
     getCharacterCount,
     getUnassignedAvatars,
@@ -68,6 +70,27 @@ const FOLDER_ACTION = {
     DELETE: 1007,
 };
 
+/** Matches 3- or 6-digit hex colors (the forms an `<input type="color">` can show). */
+const HEX_COLOR = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
+
+/**
+ * Normalises a stored folder color to what a color picker accepts (always 6 digits).
+ * @param {string} value Stored color value
+ * @returns {string} `#rrggbb`, or an empty string when the value is not a usable color
+ */
+function normalizeColor(value) {
+    if (typeof value !== 'string' || !HEX_COLOR.test(value)) {
+        return '';
+    }
+
+    if (value.length === 4) {
+        const [, red, green, blue] = value;
+        return `#${red}${red}${green}${green}${blue}${blue}`.toLowerCase();
+    }
+
+    return value.toLowerCase();
+}
+
 /**
  * @type {ReturnType<typeof createEmptyState>|null}
  * The live folder state (a reference into `extension_settings`).
@@ -79,6 +102,14 @@ let filterRegistered = false;
 
 /** Id of the folder that is currently being renamed inline (if any). */
 let renamingFolderId = null;
+
+/**
+ * Number of known characters when the panel was last fully rendered. SillyTavern
+ * loads the character list *after* the extensions, so the first list render must
+ * rebuild the panel; later renders (search, paging, sorting) must not.
+ * @type {number}
+ */
+let lastRenderedAvatarCount = -1;
 
 /**
  * Characters selected for bulk moving (avatar file names). Kept across pages so a
@@ -379,6 +410,7 @@ function renderPanel() {
     renderSelectionBar(panel);
     renderBreadcrumb(panel);
     renderTree(panel);
+    lastRenderedAvatarCount = knownAvatars().length;
 }
 
 /**
@@ -435,6 +467,50 @@ function renderSelectionBar(panel) {
 
     bar.innerHTML = parts.join('');
     bar.classList.remove('cf-hidden');
+}
+
+/**
+ * Updates the selection visuals without rebuilding the tree: row highlight, the
+ * "+N" badge and the selection bar. A full rebuild here would destroy and re-create
+ * every jQuery UI widget on each click.
+ * @returns {void}
+ */
+function renderSelectionState() {
+    const panel = document.getElementById(PANEL_ID);
+    if (!panel || !state) {
+        return;
+    }
+
+    const selecting = selection.size > 0 && state.ui.clickFolderMovesSelection !== false;
+    for (const row of panel.querySelectorAll('.cf-row')) {
+        row.classList.toggle('cf-movetarget', selecting);
+        const badge = row.querySelector('.cf-move-hint');
+        if (badge) {
+            badge.textContent = `+${selection.size}`;
+        }
+    }
+
+    renderSelectionBar(panel);
+}
+
+/**
+ * Refreshes the "Unfiled" counter and the panel tooltip. Cheap enough to run after
+ * every character-list render (search, paging, sorting).
+ * @returns {void}
+ */
+function updateUnfiledCount() {
+    const panel = document.getElementById(PANEL_ID);
+    if (!panel || !state) {
+        return;
+    }
+
+    const avatars = knownAvatars();
+    const unassigned = getUnassignedAvatars(state, avatars).length;
+    const counter = panel.querySelector('.cf-row-unassigned .cf-count');
+    if (counter) {
+        counter.textContent = String(unassigned);
+    }
+    panel.querySelector('.cf-title')?.setAttribute('title', t`${unassigned} of ${avatars.length} characters are not in a folder`);
 }
 
 /**
@@ -502,7 +578,7 @@ function renderTree(panel) {
     const includeSubfolders = state.ui.includeSubfolders !== false;
     const openFolderId = state.ui.openFolderId ?? null;
     const selecting = selection.size > 0 && state.ui.clickFolderMovesSelection !== false;
-    const moveBadge = selecting ? `<span class="cf-move-hint" title="${t`Move the selection here`}">+${selection.size}</span>` : '';
+    const moveBadge = `<span class="cf-move-hint" title="${t`Move the selection here`}">+${selection.size}</span>`;
 
     const rows = [`
         <div class="cf-row cf-row-unassigned${openFolderId === null ? ' cf-open' : ''}${selecting ? ' cf-movetarget' : ''}" data-folder-id="" data-root-row="unassigned" style="--cf-depth:0">
@@ -521,7 +597,8 @@ function renderTree(panel) {
             : getCharacterCount(state, folder.id);
         const children = getChildren(state, folder.id);
         const hasChildren = children.length > 0;
-        const colorStyle = /^#[0-9a-f]{3,8}$/i.test(folder.color) ? ` style="color:${folder.color}"` : '';
+        const color = normalizeColor(folder.color);
+        const colorStyle = color ? ` style="color:${color}"` : '';
 
         rows.push(`
             <div class="cf-row${openFolderId === folder.id ? ' cf-open' : ''}${folder.collapsed ? ' cf-collapsed' : ''}${selecting ? ' cf-movetarget' : ''}" data-folder-id="${escapeHtml(folder.id)}" data-cf-kind="folder" style="--cf-depth:${depth}">
@@ -833,7 +910,7 @@ async function onNewSubfolder(parentId) {
         return;
     }
 
-    const name = await context.Popup.show.input(t`New subfolder`, t`Name of the new subfolder in "${parent.name}":`);
+    const name = await context.Popup.show.input(t`New subfolder`, t`Name of the new subfolder in "${escapeHtml(parent.name)}":`);
     if (!name) {
         return;
     }
@@ -872,7 +949,7 @@ function onRenameFolder(folderId) {
     input.type = 'text';
     input.className = 'cf-name-input text_pole';
     input.value = folder.name;
-    input.maxLength = 60;
+    input.maxLength = MAX_NAME_LENGTH;
     nameElement.replaceWith(input);
     input.focus();
     input.select();
@@ -920,7 +997,7 @@ async function onColorFolder(folderId) {
         return;
     }
 
-    const current = /^#[0-9a-f]{6}$/i.test(folder.color) ? folder.color : '#808080';
+    const current = normalizeColor(folder.color) || '#808080';
     const content = $(`
         <div class="cf-color-popup">
             <label for="cf_color_input">${t`Folder color`}</label>
@@ -992,7 +1069,7 @@ async function onDeleteFolder(folderId) {
     }
 
     const confirm = await context.Popup.show.confirm(
-        t`Delete folder "${folder.name}"?`,
+        t`Delete folder "${escapeHtml(folder.name)}"?`,
         t`Characters and subfolders are kept: they are moved one level up. Nothing is deleted from disk.`,
     );
     if (!confirm) {
@@ -1049,7 +1126,7 @@ async function openFolderActions(folderId) {
     if (folder.parentId) {
         buttons.push({ text: t`Move to root`, icon: 'fa-turn-up', result: FOLDER_ACTION.MOVE_TO_ROOT });
     }
-    buttons.push({ text: t`Delete`, icon: 'fa-trash', result: FOLDER_ACTION.DELETE, classes: 'cf-danger' });
+    buttons.push({ text: t`Delete`, icon: 'fa-trash', result: FOLDER_ACTION.DELETE, classes: ['cf-danger'] });
 
     const header = `${escapeHtml(folder.name)} — ${t`${count} character(s) directly in this folder`}`;
     const result = await new context.Popup(header, context.POPUP_TYPE.TEXT, '', {
@@ -1147,7 +1224,7 @@ function toggleSelection(avatar) {
         selection.add(avatar);
     }
     lastSelectedAvatar = avatar;
-    renderPanel();
+    renderSelectionState();
     updateCardSelectionUI();
 }
 
@@ -1170,7 +1247,7 @@ function selectRange(avatar) {
         selection.add(candidate);
     }
     lastSelectedAvatar = avatar;
-    renderPanel();
+    renderSelectionState();
     updateCardSelectionUI();
 }
 
@@ -1183,7 +1260,7 @@ function selectAllShown() {
         selection.add(avatar);
     }
     lastSelectedAvatar = null;
-    renderPanel();
+    renderSelectionState();
     updateCardSelectionUI();
 }
 
@@ -1194,7 +1271,7 @@ function selectAllShown() {
 function clearSelection() {
     selection.clear();
     lastSelectedAvatar = null;
-    renderPanel();
+    renderSelectionState();
     updateCardSelectionUI();
 }
 
@@ -1268,16 +1345,22 @@ function undoLastMove() {
         return;
     }
 
+    let moved = 0;
     for (const entry of lastBulkMove.entries) {
-        assignCharacter(state, entry.avatar, entry.previous);
+        if (assignCharacter(state, entry.avatar, entry.previous)) {
+            moved++;
+        }
     }
 
-    const count = lastBulkMove.entries.length;
     lastBulkMove = null;
     saveState();
     renderPanel();
     refreshList({ resetPage: false });
-    toast('success', t`${count} character(s) moved back.`);
+    if (moved > 0) {
+        toast('success', t`${moved} character(s) moved back.`);
+    } else {
+        toast('info', t`Nothing to undo any more.`);
+    }
 }
 
 /**
@@ -1607,6 +1690,11 @@ function importStructure() {
 
             state = imported;
             state.ui.panelCollapsed = false;
+            // The previous structure is gone, so a pending selection or undo would
+            // point into it: clear both before rendering.
+            selection.clear();
+            lastBulkMove = null;
+            lastSelectedAvatar = null;
             commit({ resetPage: true });
             toast('success', t`Folder structure imported.`);
         } catch (error) {
@@ -1710,6 +1798,9 @@ async function resetEverything() {
     }
 
     state = createEmptyState();
+    selection.clear();
+    lastBulkMove = null;
+    lastSelectedAvatar = null;
     commit({ resetPage: true });
     toast('success', t`All folders removed.`);
 }
@@ -1739,9 +1830,18 @@ export async function init() {
         refreshList();
     });
 
+    // The character list is re-rendered for many reasons (search, paging, sorting).
+    // The folder tree does not depend on those, so only the cards and the "Unfiled"
+    // counter are refreshed - a full panel rebuild would run on every keystroke.
+    // The one case that does need a rebuild is the list arriving or changing size,
+    // because the folder counters are derived from it.
     eventSourceOn(context, context.eventTypes.CHARACTER_PAGE_LOADED, () => {
-        renderPanel();
         attachCardControls();
+        if (knownAvatars().length !== lastRenderedAvatarCount) {
+            renderPanel();
+            return;
+        }
+        updateUnfiledCount();
     });
 
     eventSourceOn(context, context.eventTypes.CHARACTER_RENAMED, (oldAvatar, newAvatar) => {
@@ -1758,9 +1858,12 @@ export async function init() {
     });
 
     eventSourceOn(context, context.eventTypes.CHARACTER_DUPLICATED, data => {
+        // A duplicate is a *copy*: the original keeps its folder, the copy inherits it.
         if (data?.oldAvatar && data?.newAvatar) {
-            renameCharacterAvatar(state, data.oldAvatar, data.newAvatar);
-            saveState();
+            if (copyCharacterAssignment(state, data.oldAvatar, data.newAvatar)) {
+                saveState();
+                renderPanel();
+            }
         }
     });
 

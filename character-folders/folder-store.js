@@ -5,7 +5,7 @@
  * SillyTavern, jQuery or the DOM, so it can be unit tested in plain Node
  * (`node --test folder-store.test.js`).
  *
- * Data model (persisted in `extension_settings.character_folders`):
+ * Data model (persisted in `extension_settings['character-folders']`):
  *
  * ```js
  * {
@@ -629,6 +629,29 @@ export function renameCharacterAvatar(state, oldAvatar, newAvatar) {
 
     state.assignments[newAvatar] = state.assignments[oldAvatar];
     delete state.assignments[oldAvatar];
+    return true;
+}
+
+/**
+ * Copies an assignment to another character. Used when a character is duplicated:
+ * the original keeps its folder and the copy inherits it (a duplicate is a copy,
+ * not a rename - `renameCharacterAvatar` would move the assignment away).
+ * @param {object} state State to modify in place
+ * @param {string} sourceAvatar Avatar file name of the existing character
+ * @param {string} targetAvatar Avatar file name of the new copy
+ * @returns {boolean} Whether an assignment was copied
+ */
+export function copyCharacterAssignment(state, sourceAvatar, targetAvatar) {
+    if (typeof sourceAvatar !== 'string' || typeof targetAvatar !== 'string' || sourceAvatar === targetAvatar) {
+        return false;
+    }
+
+    const folderId = getCharacterFolderId(state, sourceAvatar);
+    if (!folderId) {
+        return false;
+    }
+
+    state.assignments[targetAvatar] = folderId;
     return true;
 }
 

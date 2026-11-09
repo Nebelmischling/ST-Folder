@@ -7,6 +7,36 @@ Alle nennenswerten Änderungen an diesem Projekt. Das Format orientiert sich an
 Bewusst vor 1.0: die Extension ist im Alltag funktionsfähig und durch Tests abgesichert,
 aber die Oberfläche hat noch Luft (siehe „Geplant").
 
+## [0.5.1] – 2026-11-09
+
+Fehlerbehebungen aus einem unabhängigen Code-Review, plus zwei Render-Optimierungen.
+Keine Änderungen am Ordner-Modell und am Settings-Format.
+
+### Behoben
+
+- **Duplizieren verschiebt nicht mehr die Zuordnung:** ein Duplikat erbt den Ordner,
+  das Original behält ihn. Vorher fiel das Original still auf „Unfiled" und der Zähler
+  blieb falsch. Neue reine Funktion `copyCharacterAssignment()` samt Test.
+- **Ordnernamen im Popup werden HTML-escaped** (Unterordner-Nachfrage und
+  Lösch-Bestätigung). Vorher konnte ein Name aus einem importierten Backup Markup in die
+  Popup-Baumstruktur schmuggeln.
+- **„Delete" im Ordner-Menü erscheint wieder rot:** `classes` erwartet ein Array,
+  ein String wurde von SillyTavern in Einzelbuchstaben zerlegt.
+- **Undo meldet keinen Erfolg mehr, wenn nichts mehr rückgängig zu machen ist**
+  (z. B. nach Reset oder Import); die Auswahl- und Undo-Zustände werden dort jetzt
+  zurückgesetzt.
+- **Doppelter Baum-Aufbau entfernt:** `CHARACTER_PAGE_LOADED` (Suche, Blättern,
+  Sortieren) baut den Ordnerbaum nicht mehr neu, sondern aktualisiert nur noch die
+  Karten-Kästchen und den „Unfiled"-Zähler.
+- **Auswahl-Klicks rendern nur noch Leiste, Zeilenklasse und Badge** statt des ganzen
+  Baums inklusive aller jQuery-UI-Widgets.
+
+### Geändert
+
+- Eine gemeinsame Farbnormalisierung (`normalizeColor`) für Baum und Farbwähler;
+  `MAX_NAME_LENGTH` wird jetzt auch für das Umbenennen-Feld genutzt statt der Zahl 60.
+- Doku-Kommentare nennen den tatsächlichen Settings-Key `character-folders`.
+
 ## [0.5.0] – 2026-11-09
 
 Erste veröffentlichte Fassung.

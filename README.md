@@ -152,6 +152,7 @@ SillyTavern-Module benutzt, die ohnehin geladen sind (jQuery, jQuery UI, `script
 │   ├── audit-server.sh         # System-/Installations-Audit
 │   ├── deepdive*-server.sh     # Detailanalysen (Extensions, Tags, Char-Panel)
 │   └── perf-check*-server.sh   # Performance-Messung (CPU, RAM, Datenlast, Seite)
+├── CHANGELOG.md                # Versionshistorie und geplante Erweiterungen
 ├── install-character-folders.ps1
 └── README.md
 ```
@@ -161,7 +162,7 @@ SillyTavern-Module benutzt, die ohnehin geladen sind (jQuery, jQuery UI, `script
 ## Tests
 
 ```powershell
-# 25 Unit-Tests der reinen Logik (keine Abhängigkeiten)
+# 26 Unit-Tests der reinen Logik (keine Abhängigkeiten)
 cd character-folders
 node --test
 
@@ -214,6 +215,6 @@ ST_PATH=/path/to/SillyTavern bash perf-check-server.sh # CPU/RAM/Platte, Config-
 
 ## Status
 
-**0.5.0** — im Alltag funktionsfähig und durch 25 Unit-Tests plus 60 Browser-Checks
+**0.5.1** — im Alltag funktionsfähig und durch 26 Unit-Tests plus 60 Browser-Checks
 abgesichert, aber bewusst noch vor 1.0. Vollständige Historie, behobene Fehler und die
 geplanten Erweiterungen stehen in [CHANGELOG.md](CHANGELOG.md).

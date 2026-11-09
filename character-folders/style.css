@@ -237,6 +237,12 @@
     font-weight: 600;
 }
 
+/* The badge is always in the DOM so selection updates are pure class/text patches. */
+
+.cf-panel .cf-row:not(.cf-movetarget) .cf-move-hint {
+    display: none;
+}
+
 /* Folder picker popup */
 
 .cf-pick-popup {
