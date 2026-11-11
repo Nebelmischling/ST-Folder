@@ -258,11 +258,9 @@ try {
     }).length);
     check('drag handles stay clickable in grid view', gripInGrid === 5, `visible grips: ${gripInGrid}`);
 
-    // 17. Screenshots for visual review.
+    // 17. The two screenshots the README uses.
     const clearPopups = () => page.evaluate(() => window.jQuery('#cf_popup_host').empty());
     await clearPopups();
-    await page.screenshot({ path: path.join(HERE, 'screenshots', 'grid-mode-full.png') });
-    await page.screenshotElement('#cf_panel', { path: path.join(HERE, 'screenshots', 'panel-grid-mode.png') });
     await page.evaluate(() => document.body.classList.remove('charListGrid'));
     await page.waitForTimeout(150);
     await page.evaluate(() => { window.__cf.nextInput = 'Fantasy'; });
@@ -272,9 +270,8 @@ try {
     await page.click('#cf_panel .cf-new-folder');
     await page.waitForFunction(() => document.querySelectorAll('#cf_panel .cf-row').length === 3);
     await clearPopups();
-    await page.screenshot({ path: path.join(HERE, 'screenshots', 'list-mode-full.png') });
     await page.screenshotElement('#cf_panel', { path: path.join(HERE, 'screenshots', 'panel-list-mode.png') });
-    check('screenshots written', true);
+    check('README screenshots written', true);
 
     // 18. Selection + bulk move (the "select, then move" workflow).
     const fantasy = await folderId('Fantasy');
@@ -296,7 +293,6 @@ try {
         await page.$eval('#cf_panel .cf-selection .cf-sel-count', element => element.textContent.includes('2 selected')),
         await page.$eval('#cf_panel .cf-selection', element => element.textContent.trim()));
     await page.screenshot({ path: path.join(HERE, 'screenshots', 'selection-mode-full.png') });
-    await page.screenshotElement('#cf_panel', { path: path.join(HERE, 'screenshots', 'panel-selection.png') });
 
     // Every content change must hit the settings file immediately (not just debounced).
     const savesBeforeMove = await page.evaluate(() => window.__cf.immediateSaves ?? 0);

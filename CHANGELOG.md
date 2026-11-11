@@ -7,6 +7,26 @@ Alle nennenswerten Änderungen an diesem Projekt. Das Format orientiert sich an
 Bewusst vor 1.0: die Extension ist im Alltag funktionsfähig und durch Tests abgesichert,
 aber die Oberfläche hat noch Luft (siehe „Geplant").
 
+## [Unveröffentlicht]
+
+### Geändert
+
+- **Das Repo-Root ist jetzt die Extension:** `manifest.json`, `index.js`, `style.css` und
+  `folder-store.js` liegen im Wurzelverzeichnis. SillyTavern klont beim Installieren das ganze
+  Repo nach `data/<handle>/extensions/ST-Folder/` und sucht die Manifest direkt dort — vorher
+  brach die Installation über die GitHub-URL mit „Manifest file not found" ab.
+- `install-character-folders.ps1` kopiert nur noch die vier Extension-Dateien statt des ganzen
+  Repo-Roots (kein `tools/`, kein `verification/`, kein lokaler SillyTavern-Checkout).
+- Der Browser-Harness serviert die Extension-Dateien aus dem Repo-Root.
+
+### Entfernt
+
+- Screenshots, die nirgends verwendet wurden (`grid-mode-full`, `list-mode-full`,
+  `panel-grid-mode`, `panel-selection`) — der Harness schreibt nur noch die beiden Bilder,
+  die das README zeigt.
+- Einmal-Analyseskripte `deepdive3`–`deepdive6-server.sh` und `perf-check2-server.sh`; deren
+  Erkenntnisse sind in Extension, README und diesem Changelog eingeflossen.
+
 ## [0.5.1] – 2026-11-09
 
 Fehlerbehebungen aus einem unabhängigen Code-Review, plus zwei Render-Optimierungen.

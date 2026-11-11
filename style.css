@@ -1,8 +1,7 @@
 /**
  * Character Folders — styles for the folder panel inside Character Management.
  *
- * Only classes prefixed with `cf-` (and the appended `.cf-card-grip`) are styled,
- * so nothing in the core UI is changed visually.
+ * Only classes prefixed with `cf-` are styled, so nothing in the core UI is changed visually.
  */
 
 .cf-panel {

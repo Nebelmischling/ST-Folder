@@ -159,8 +159,8 @@ SillyTavern-Module benutzt, die ohnehin geladen sind (jQuery, jQuery UI, `script
 │   └── README.md               # wie die Verifikation aufgebaut ist
 ├── tools/                      # Read-only-Serverwerkzeuge (Audit/Performance)
 │   ├── audit-server.sh         # System-/Installations-Audit
-│   ├── deepdive*-server.sh     # Detailanalysen (Extensions, Tags, Char-Panel)
-│   └── perf-check*-server.sh   # Performance-Messung (CPU, RAM, Datenlast, Seite)
+│   ├── deepdive-server.sh      # Detailanalyse der Character-List-UI
+│   └── perf-check-server.sh    # Performance-Messung (CPU, RAM, Datenlast, Seite)
 ├── CHANGELOG.md                # Versionshistorie und geplante Erweiterungen
 ├── install-character-folders.ps1
 └── README.md
