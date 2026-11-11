@@ -3,7 +3,7 @@
  *
  * It serves:
  *  - the harness page itself,
- *  - the **real** extension files from `../character-folders/`,
+ *  - the **real** extension files from the repository root (the root *is* the extension),
  *  - the real jQuery / jQuery UI / Font Awesome assets from a SillyTavern checkout
  *    (found via `$ST_ROOT`, next to the repo, or above it),
  *  - stubbed core modules at the exact URLs the extension imports.
@@ -17,7 +17,9 @@ import path from 'node:path';
 
 const HERE = import.meta.dirname;
 const REPO_ROOT = path.resolve(HERE, '..');
-const EXTENSION_DIR = path.join(REPO_ROOT, 'character-folders');
+// The repository root is the extension itself: SillyTavern clones the repo into
+// public/scripts/extensions/third-party/<repo>/ and expects manifest.json right there.
+const EXTENSION_DIR = REPO_ROOT;
 const STUB_DIR = path.join(HERE, 'stubs');
 
 /**

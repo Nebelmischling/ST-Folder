@@ -13,7 +13,7 @@ werden per **Drag & Drop** verschoben.
 
 > **Nie eine Core-Datei gepatcht:** Die Extension hängt sich in die vorhandene
 > Filterkette (`entitiesFilter.filterFunctions`) und fügt ihr Panel in
-> `#rm_characters_block` ein. Alles läuft in `data/<handle>/extensions/character-folders/`
+> `#rm_characters_block` ein. Alles läuft in `data/<handle>/extensions/ST-Folder/`
 > und ist mit Löschen des Ordners restlos entfernt.
 
 | Ordnerpanel | Auswahl & Verschieben |
@@ -77,9 +77,19 @@ werden per **Drag & Drop** verschoben.
 
 ---
 
-## Installation (HomeServer)
+## Installation
 
-1. Ordner `character-folders` in das Benutzerverzeichnis deiner Installation kopieren:
+### Direkt aus GitHub (empfohlen)
+
+*Extensions* → **Install extension** → `https://github.com/Nebelmischling/ST-Folder` einfügen →
+**Install just for me**. Das Repo-Root **ist** die Extension (`manifest.json` liegt direkt oben),
+deshalb funktioniert die URL ohne Branch-Angabe. Die Installation landet in
+`data/<handle>/extensions/ST-Folder/`; **Update** in der Extension-Liste holt neue Versionen.
+
+### Manuell / HomeServer
+
+1. Die Extension-Dateien (`manifest.json`, `index.js`, `style.css`, `folder-store.js`) in das
+   Benutzerverzeichnis deiner Installation kopieren, z. B.:
 
    ```
    <SillyTavern>/data/<handle>/extensions/character-folders/
@@ -91,7 +101,7 @@ werden per **Drag & Drop** verschoben.
    Alternativ (für **alle** Benutzer, nur als Admin) nach
    `<SillyTavern>/public/scripts/extensions/third-party/character-folders/`.
 
-   Hilfsskript aus diesem Workspace:
+   Hilfsskript aus diesem Workspace (kopiert nur die vier Extension-Dateien):
 
    ```powershell
    powershell -File .\install-character-folders.ps1 -SillyTavernPath 'D:\SillyTavern'
@@ -135,12 +145,11 @@ SillyTavern-Module benutzt, die ohnehin geladen sind (jQuery, jQuery UI, `script
 
 ```
 .
-├── character-folders/          # die Extension selbst (kopierbar nach data/<handle>/extensions/)
-│   ├── manifest.json           # Manifest (Hooks: activate -> init)
-│   ├── index.js                # UI + SillyTavern-Integration
-│   ├── style.css               # Styling über ST-Theme-Variablen
-│   ├── folder-store.js         # reine Datenlogik (kein DOM, kein ST)
-│   └── folder-store.test.js    # 25 Unit-Tests (node --test)
+├── manifest.json               # Manifest (Hooks: activate -> init) — Repo-Root ist die Extension
+├── index.js                    # UI + SillyTavern-Integration
+├── style.css                   # Styling über ST-Theme-Variablen
+├── folder-store.js             # reine Datenlogik (kein DOM, kein ST)
+├── folder-store.test.js        # 26 Unit-Tests (node --test folder-store.test.js)
 ├── verification/               # Browser-Harness: 60 Checks in echtem Chromium
 │   ├── cdp.mjs                 # DevTools-Protokoll-Treiber (nur Node-Bordmittel)
 │   ├── checks.mjs              # die Checks + Screenshots
@@ -163,8 +172,7 @@ SillyTavern-Module benutzt, die ohnehin geladen sind (jQuery, jQuery UI, `script
 
 ```powershell
 # 26 Unit-Tests der reinen Logik (keine Abhängigkeiten)
-cd character-folders
-node --test
+node --test folder-store.test.js
 
 # 60 Browser-Checks: echte Extension in Chromium, echtes jQuery/jQuery UI und Font Awesome
 # aus einem SillyTavern-Checkout, ST-Kernmodule gestubbt. Rendering, Drilldown, Auswahl,

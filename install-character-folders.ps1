@@ -4,7 +4,7 @@
     Installiert die Extension "Character Folders" in eine vorhandene SillyTavern-Installation.
 
 .DESCRIPTION
-    Kopiert den Ordner character-folders nach <SillyTavern>/data/<Handle>/extensions/.
+    Kopiert die Extension-Dateien aus dem Repo-Root nach <SillyTavern>/data/<Handle>/extensions/.
     Standardmäßig wird der Handle automatisch erkannt, wenn genau ein Benutzerverzeichnis
     existiert. Es werden nur Dateien der Extension kopiert, nichts am SillyTavern-Code geändert.
 
@@ -29,9 +29,15 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-$source = Join-Path $PSScriptRoot 'character-folders'
-if (-not (Test-Path $source)) {
-    throw "Quellordner nicht gefunden: $source"
+# Das Repo-Root ist die Extension selbst (manifest.json liegt hier). Kopiert werden nur die
+# Extension-Dateien, nicht tools/, verification/ oder ein lokaler SillyTavern-Checkout.
+$source = $PSScriptRoot
+$extensionFiles = @('manifest.json', 'index.js', 'style.css', 'folder-store.js')
+
+foreach ($file in $extensionFiles) {
+    if (-not (Test-Path (Join-Path $source $file))) {
+        throw "Extension-Datei nicht gefunden: $(Join-Path $source $file)"
+    }
 }
 
 $stRoot = (Resolve-Path $SillyTavernPath).Path
@@ -75,7 +81,9 @@ if (Test-Path $destination) {
 }
 
 New-Item -ItemType Directory -Path $destination -Force | Out-Null
-Copy-Item (Join-Path $source '*') -Destination $destination -Recurse -Force
+foreach ($file in $extensionFiles) {
+    Copy-Item (Join-Path $source $file) -Destination $destination -Force
+}
 
 Write-Host "Character Folders installiert nach:" -ForegroundColor Green
 Write-Host "  $destination"

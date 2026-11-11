@@ -12,11 +12,10 @@ node verification/checks.mjs     # 60 Checks + Screenshots
 Erwartete Ausgabe: `60/60 checks passed.` (Exit-Code 0). Bei einem Fehlschlag: Exit-Code 1
 plus Liste der fehlgeschlagenen Checks. Screenshots landen in `verification/screenshots/`.
 
-Zusätzlich liegen die Unit-Tests der reinen Logik bei der Extension selbst:
+Zusätzlich liegen die Unit-Tests der reinen Logik im Repo-Root, direkt neben der Extension:
 
 ```powershell
-cd character-folders
-node --test                      # 25 Tests
+node --test folder-store.test.js  # Unit-Tests der reinen Logik
 ```
 
 ## Wie das funktioniert
@@ -29,7 +28,7 @@ node --test                      # 25 Tests
   echte, vertrauenswürdige Events — genau das braucht jQuery UI für Drag & Drop.
 * `server.mjs` — Mini-Statikserver (127.0.0.1, Port 8124) mit diesen Routen:
   * `/scripts/extensions/third-party/character-folders/*` → **die echten Extension-Dateien**
-    aus `../character-folders/`
+    aus dem Repo-Root (der Ordnername in der URL ist beliebig)
   * `/lib/*`, `/css/*`, `/webfonts/*` → **echtes jQuery, jQuery UI, Touch-Punch, Font Awesome**
     (inkl. `solid.min.css`, weil dort die `@font-face`-Regeln liegen) aus einem
     SillyTavern-Checkout (gesucht via `ST_ROOT`, daneben/darüber, sonst Warnung)
